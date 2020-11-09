@@ -26,7 +26,7 @@ let main =
   let keys = List.map Key.abstract [ http_port; https_port ] in
   foreign
     ~packages ~keys
-    "Dispatch.HTTPS" (pclock @-> kv_ro @-> kv_ro @-> http @-> job)
+    "Dispatch.HTTPS" (random @-> pclock @-> kv_ro @-> kv_ro @-> http @-> job)
 
 let () =
-  register "https" [main $ default_posix_clock $ data $ certs $ https_srv]
+  register "https" [main $ default_random $ default_posix_clock $ data $ certs $ https_srv]

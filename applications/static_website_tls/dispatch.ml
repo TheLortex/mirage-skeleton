@@ -59,7 +59,7 @@ module Dispatch (FS: Mirage_kv.RO) (S: HTTP) = struct
 
 end
 
-module HTTPS
+module HTTPS(_: Mirage_random.S)
     (Pclock: Mirage_clock.PCLOCK) (DATA: Mirage_kv.RO) (KEYS: Mirage_kv.RO) (Http: HTTP) =
 struct
 
@@ -71,7 +71,7 @@ struct
     let conf = Tls.Config.server ~certificates:(`Single cert) () in
     Lwt.return conf
 
-  let start _clock data keys http =
+  let start _rand _clock data keys http =
     tls_init keys >>= fun cfg ->
     let https_port = Key_gen.https_port () in
     let tls = `TLS (cfg, `TCP https_port) in
