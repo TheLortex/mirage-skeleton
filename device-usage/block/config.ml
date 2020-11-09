@@ -1,28 +1,22 @@
 open Mirage
 
 type shellconfig = ShellConfig
-let shellconfig = Type ShellConfig
+let shellconfig = typ ShellConfig
 
-let config_shell = impl @@ object
-    inherit base_configurable
-
-    method! build _i =
-      Bos.OS.Cmd.run Bos.Cmd.(v "dd" % "if=/dev/zero" % "of=disk.img" % "count=100000")
-
-    method! clean _i =
-      Bos.OS.File.delete (Fpath.v "disk.img")
-
-    method module_name = "Functoria_runtime"
-    method name = "shell_config"
-    method ty = shellconfig
-end
-
+let config_shell = impl 
+  ~dune:(fun _ -> [Dune.stanza {|
+(rule (targets disk.img)
+ (action (run dd if=/dev/zero of=disk.img count=100000))
+)|}])
+  ~outputs:(fun _ -> ["disk.img"])
+  "shell_config"
+  shellconfig
 
 let main =
   let packages = [ package "io-page"; package "duration"; package ~build:true "bos"; package ~build:true "fpath" ] in
   foreign
     ~packages
-    ~deps:[abstract config_shell] "Unikernel.Main" (time @-> block @-> job)
+    ~deps:[dep config_shell] "Unikernel.Main" (time @-> block @-> job)
 
 let img = Key.(if_impl is_solo5 (block_of_file "storage") (block_of_file "disk.img"))
 
