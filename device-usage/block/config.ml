@@ -8,7 +8,7 @@ let config_shell = impl
 (rule (targets disk.img)
  (action (run dd if=/dev/zero of=disk.img count=100000))
 )|}])
-  ~outputs:(fun _ -> ["disk.img"])
+  ~install:(fun _ -> Functoria.Install.v ~etc:[Fpath.v "disk.img"] ())
   "shell_config"
   shellconfig
 
